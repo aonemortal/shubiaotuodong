@@ -1,0 +1,70 @@
+
+				this.dialogshow=true
+				this.$nextTick(()=>{
+					var parent=document.querySelector('.parent1');
+					var parent2=document.querySelector('.parent2');
+					var childs=document.querySelectorAll('.child');
+					let clone
+					childs=Array.from(childs);
+					console.log(parent,parent2,childs,'childs')
+					// 给每一个孩子节点绑定事件
+					// childs.forEach(function(item){
+					// 	item.οnclick=function(){
+					// 		parent.appendChild(this)
+					// 	}
+					// });
+					let dragged
+					childs.forEach(function(item){
+						// 拖动事件 
+						// 开始拖动 on事件类型
+						item.ondragstart=function(event){
+							let drag =	document.querySelector('#'+item.id).draggable
+							console.log(drag,"11111111111111111111111111111111111111111111")
+							if(drag==true){
+								console.log('ondragstart开始拖动了');
+								// console.log(event,'事件对象');
+								// 将拖动元素得id传出去
+								
+								// dataTransfer.setData 传输数据 key value
+								console.log(event);
+								// dragged = event.target;
+								dragged = event.path[1];
+								event.dataTransfer.effectAllowed = "copy";
+								event.dataTransfer.setData('id',item.id);
+							}
+						}
+						// 正在拖动
+						item.ondrag=function(ev,){
+							clone = dragged.cloneNode(true)
+							console.log('ondrap正在拖动');
+						}
+						// 拖动结束
+						item.ondragend=function(){
+							console.log('ondragend拖动结束');
+						}
+					})
+					// 放置事件 --放置元素 parent
+					// 进入到放置元素
+					parent2.ondragenter=function(){
+						console.log('ondragenter进入到放置元素parent2');
+					}
+					// 在放置元素内移动
+					parent2.ondragover=function(){
+						console.log('ondragover正在放置元素内移动parent2');
+						// 将放置元素设置为可放置
+						event.preventDefault();
+					}
+					// 将拖动元素放置到放置元素
+					parent2.ondrop=function(event){
+						console.log('ondrop放置parent2');
+						//获取拖动元素传输得数据getData(key)
+						// console.log(event.dataTransfer.getData('id'),'事件对象');
+						var id=event.dataTransfer.getData('id');
+						document.querySelector(('#'+id)).className="leftbox-content-item"
+						document.querySelector(('#'+id)).draggable=false
+						this.appendChild(clone)
+						// this.appendChild(document.querySelector('#'+id))
+						// 阻止事件冒泡
+						event.stopPropagation()
+					}
+				})
