@@ -1,0 +1,296 @@
+<template>
+	<div>
+		<div class="ctn ctn1">
+				<div class="sub sub1" v-for="(site, index) in list1">
+						 <div class="dragCtn fixed" :style="{ left: X+'px', top: Y+'px'}"
+							 @mousedown="mousedown(site, $event)"
+							 @mousemove.prevent='mousemove(site, $event)'
+							 @mouseup='mouseup(site, $event)'>
+								 拖动我
+						 </div>
+			 </div>
+		</div>
+		<div class="ctn ctn2">
+				<div class="sub sub2" v-for="(site, index) in list2"
+						@mouseenter='mouseenter(site, $event)'>
+					<div class="dragCtn">
+							 {{ index }} : {{ site.name }}
+					</div>
+			 </div>
+		</div>
+		<el-dialog :visible.sync="is_moving">
+		<!-- 放置元素:parent  放置事件:dragenter dragover drop-->
+			<!-- 拖动元素:child 拖动事件：dragstart drag dragend-->
+			<div class="parent"></div>
+			<div class="parent2">
+				<!-- 设置当前元素可拖拽 draggable设置当前元素是否可拖拽 -->
+				<div class="child" id="one" draggable="true">one</div>
+				<div class="child" id="two" draggable="true">two</div>
+				<div class="child" id="three" draggable="true">three</div>
+				<div class="child" id="four" draggable="true">four</div>
+			</div>
+		</el-dialog>
+	</div>
+</template>
+ 
+<script>
+export default{
+  data() {
+		return{
+			list1: [{name:1, index:0}],
+			list2: [{name:'a', index:0}, {name:'b', index:1}, {name:'c', index: 2}, {name:'d', index: 3}],
+			vm:'',
+			sb_bkx: 0,
+			sb_bky: 0,
+			is_moving: true,
+			X: 0,
+			Y: 0
+		}
+  },
+	mounted() {
+		this.$nextTick(()=>{
+			var parent=document.querySelector('.parent');
+			var parent2=document.querySelector('.parent2');
+			var childs=document.querySelectorAll('.child');
+			childs=Array.from(childs);
+			// 给每一个孩子节点绑定事件
+			// childs.forEach(function(item){
+			// 	item.οnclick=function(){
+			// 		parent.appendChild(this)
+			// 	}
+			// });
+			childs.forEach(function(item){
+				// 拖动事件 
+				// 开始拖动 on事件类型
+				item.ondragstart=function(event){
+					console.log('ondragstart开始拖动了');
+					// console.log(event,'事件对象');
+					// 将拖动元素得id传出去
+					// dataTransfer.setData 传输数据 key value
+					console.log(item.id);
+					event.dataTransfer.setData('id',item.id);
+				}
+				// 正在拖动
+				item.ondrag=function(){
+					console.log('ondrap正在拖动');
+				}
+				// 拖动结束
+				item.ondragend=function(){
+					console.log('ondragend拖动结束');
+				}
+			})
+			// 放置事件 --放置元素 parent
+			// 进入到放置元素
+			parent.ondragenter=function(){
+				console.log('ondragenter进入到放置元素parent1');
+			}
+			// 在放置元素内移动
+			parent.ondragover=function(){
+				console.log('ondragover正在放置元素内移动parent1');
+				// 将放置元素设置为可放置
+				event.preventDefault();
+			}
+			// 将拖动元素放置到放置元素
+			parent.ondrop=function(event){
+				console.log('ondrop放置parent1');
+				
+				//获取拖动元素传输得数据getData(key)
+				// console.log(event.dataTransfer.getData('id'),'事件对象');
+				var id=event.dataTransfer.getData('id');
+				console.log(event,id)
+				this.appendChild(document.querySelector('#'+id))
+				// 阻止事件冒泡
+				event.stopPropagation()
+			}
+			parent2.ondragenter=function(){
+				console.log('ondragenter进入到放置元素parent2');
+			}
+			// 在放置元素内移动
+			parent2.ondragover=function(){
+				console.log('ondragover正在放置元素内移动parent2');
+				// 将放置元素设置为可放置
+				event.preventDefault();
+			}
+			// 将拖动元素放置到放置元素
+			parent2.ondrop=function(event){
+				console.log('ondrop放置parent2');
+				//获取拖动元素传输得数据getData(key)
+				// console.log(event.dataTransfer.getData('id'),'事件对象');
+				var id=event.dataTransfer.getData('id');
+				this.appendChild(document.querySelector('#'+id))
+				// 阻止事件冒泡
+				event.stopPropagation()
+			}
+		})
+		
+	},
+  methods: {
+      mousedown: function (site, event) {
+        var startx=event.x;
+        var starty=event.y;
+        this.sb_bkx=startx - event.target.offsetLeft;
+        this.sb_bky=starty - event.target.offsetTop;
+        this.is_moving = true;
+      },
+      mousemove: function (site, event) {
+				var endx=event.x - this.sb_bkx;
+				var endy=event.y - this.sb_bky;
+				var _this = this
+				if(this.is_moving){
+					this.X = endx;
+					this.Y = endy;
+				}
+      },
+      mouseup: function (e) {
+        this.is_moving = false;
+      },
+    mouseenter: function (){
+      console.log('鼠标进入')
+    }
+  }
+}
+	// window.onload=function(){
+	// 		// 获取parent和child
+	// 		var parent=document.querySelector('.parent');
+	// 		var parent2=document.querySelector('.parent2');
+	// 		var childs=document.querySelectorAll('.child');
+	// 		childs=Array.from(childs);
+	// 		// 给每一个孩子节点绑定事件
+	// 		// childs.forEach(function(item){
+	// 		// 	item.οnclick=function(){
+	// 		// 		parent.appendChild(this)
+	// 		// 	}
+	// 		// });
+	// 		childs.forEach(function(item){
+	// 			// 拖动事件 
+	// 			// 开始拖动 on事件类型
+	// 			item.ondragstart=function(event){
+	// 				console.log('ondragstart开始拖动了');
+	// 				// console.log(event,'事件对象');
+	// 				// 将拖动元素得id传出去
+	// 				// dataTransfer.setData 传输数据 key value
+	// 				console.log(item.id);
+	// 				event.dataTransfer.setData('id',item.id);
+	// 			}
+	// 			// 正在拖动
+	// 			item.ondrag=function(){
+	// 				console.log('ondrap正在拖动');
+	// 			}
+	// 			// 拖动结束
+	// 			item.ondragend=function(){
+	// 				console.log('ondragend拖动结束');
+	// 			}
+	// 		})
+	// 		// 放置事件 --放置元素 parent
+	// 		// 进入到放置元素
+	// 		parent.ondragenter=function(){
+	// 			console.log('ondragenter进入到放置元素parent1');
+	// 		}
+	// 		// 在放置元素内移动
+	// 		parent.ondragover=function(){
+	// 			console.log('ondragover正在放置元素内移动parent1');
+	// 			// 将放置元素设置为可放置
+	// 			event.preventDefault();
+	// 		}
+	// 		// 将拖动元素放置到放置元素
+	// 		parent.ondrop=function(event){
+	// 			console.log('ondrop放置parent1');
+	// 			//获取拖动元素传输得数据getData(key)
+	// 			// console.log(event.dataTransfer.getData('id'),'事件对象');
+	// 			var id=event.dataTransfer.getData('id');
+	// 			this.appendChild(document.querySelector('#'+id))
+	// 			// 阻止事件冒泡
+	// 			event.stopPropagation()
+	// 		}
+	// 		parent2.ondragenter=function(){
+	// 			console.log('ondragenter进入到放置元素parent2');
+	// 		}
+	// 		// 在放置元素内移动
+	// 		parent2.ondragover=function(){
+	// 			console.log('ondragover正在放置元素内移动parent2');
+	// 			// 将放置元素设置为可放置
+	// 			event.preventDefault();
+	// 		}
+	// 		// 将拖动元素放置到放置元素
+	// 		parent2.ondrop=function(event){
+	// 			console.log('ondrop放置parent2');
+	// 			//获取拖动元素传输得数据getData(key)
+	// 			// console.log(event.dataTransfer.getData('id'),'事件对象');
+	// 			var id=event.dataTransfer.getData('id');
+	// 			this.appendChild(document.querySelector('#'+id))
+	// 			// 阻止事件冒泡
+	// 			event.stopPropagation()
+	// 		}
+	// 		// 将拖动元素放置到body
+	// 		// document.body.ondragover=function(){
+	// 		// 	console.log('ondragover正在放置元素内移动body');
+	// 		// 	// 将放置元素设置为可放置
+	// 		// 	event.preventDefault();
+	// 		// }
+	// 		// // 将拖动元素放置到放置元素
+	// 		// document.body.ondrop=function(event){
+	// 		// 	console.log('ondrop放置body');
+	// 		// 	//获取拖动元素传输得数据getData(key)
+	// 		// 	// console.log(event.dataTransfer.getData('id'),'事件对象');
+	// 		// 	var id=event.dataTransfer.getData('id');
+	// 		// 	this.appendChild(document.querySelector('#'+id))
+	// 		// 	// 阻止事件冒泡
+	// 		// 	event.stopPropagation()
+	// 		// }
+			
+			
+	// 	}
+</script>
+ 
+<style>
+    .ctn{
+        line-height: 50px;
+        cursor: pointer;
+        font-size: 20px;
+        text-align: center;
+        float: left;
+    }
+    .sub:hover{
+        background: #e6dcdc;
+        color: white;
+        width: 100px;
+    }
+       .ctn1{
+           border: 1px solid green;
+           width: 100px;
+       }
+       .ctn2{
+           border: 1px solid black;
+           width: 100px;
+           margin-left: 50px;
+       }
+       .fixed{
+         width: 100px;
+      position: fixed;
+      background: red;
+      left: 0;
+      top: 0;
+      cursor: move;
+       }
+			 
+			.parent{
+				height: 200px;
+				border: 2px solid rgb(82, 150, 90);
+				background-color: rgba(11, 11, 11, .1);
+			}
+			.parent2{
+				height: 200px;
+				background-color: rgba(69, 63, 249, 0.2);
+			}
+			.child{
+				width: 100px;
+				height: 100px;
+				background-color: rgb(200, 200, 242);
+				color: white;
+				float: left;
+				margin:10px 0 0 10px;
+			}
+			body{
+				height: 400px;
+			}
+</style>
